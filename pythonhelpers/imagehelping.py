@@ -28,8 +28,10 @@ def getImageData(filename):
 #    idetify locations of palms
     palm = detectPalmLocations(filename)
     i = 0
-    newfilename = "temp_palm_images/"+str(newname)+ "-" + str(i)+".jpeg"
-    cv2.imwrite(newfilename, palm)
+    # visualize palm
+    # newfilename = "temp_palm_images/"+str(newname)+ "-" + str(i)+".jpeg"
+    # cv2.imwrite(newfilename, palm)
+
         # remove temp headfile 
         # os.remove(newfilename)
     # get data back, log into db
@@ -73,16 +75,21 @@ def detectPalmLocations(filename):
     img = cv2.imread(filename)
     imgRGB = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
     results = palms.process(imgRGB)
-    print(results.multi_hand_landmarks)
+    # print(results.multi_hand_landmarks)
+    all_palm_coords = []
     if results.multi_hand_landmarks:
         for palmLms in results.multi_hand_landmarks:
             for id, lm in enumerate(palmLms.landmark):
                 #print(id,lm)
                 h, w, c = img.shape
-                cx, cy = int(lm.x *w), int(lm.y*h)
+                if (id == 4):
+                    all_palm_coords.append((h, w))
+                # cx, cy = int(lm.x *w), int(lm.y*h)
                 #if id ==0:
-                cv2.circle(img, (cx,cy), 3, (255,0,255), cv2.FILLED)
-
-            mpDraw.draw_landmarks(img, palmLms, mpPalms.HAND_CONNECTIONS)
+                # cv2.circle(img, (cx,cy), 3, (255,0,255), cv2.FILLED)
+            # mpDraw.draw_landmarks(img, palmLms, mpPalms.HAND_CONNECTIONS)
     # returns locations
-    return img
+    if len(all_palm_coords) != 0:
+        print(all_palm_coords)
+        return all_palm_coords
+    # return img
