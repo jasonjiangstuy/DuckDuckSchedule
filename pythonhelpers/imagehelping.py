@@ -15,9 +15,12 @@ def getImageData(filename):
     # save to temp dir?? maybe we dont need to save
     img = cv2.imread(filename)
     for i, (face_dict) in enumerate(faces):
+        average_distance = (face_dict['xmin'] + face_dict['xmax'] + face_dict['ymin'] + face_dict['ymax'])/8
+        average_x = (face_dict['xmin'] + face_dict['xmax'])/2
+        average_y = (face_dict['ymin'] + face_dict['ymax'])/2
         print(face_dict)
         tempimg = img.copy()
-        tempimg = tempimg[int(face_dict['xmin']):int(face_dict['xmax']) , int(face_dict['ymin']):int(face_dict["ymax"])]
+        tempimg = tempimg[int(average_x-average_distance):int(average_x+average_distance) , int(average_y-average_distance):int(average_y+average_distance)]
         newfilename = "temp_head_images/"+str(newname)+ "-" + str(i)+".jpeg"
         try:
             cv2.imwrite(newfilename, tempimg)
