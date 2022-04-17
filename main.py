@@ -1,9 +1,11 @@
+from email.mime import image
 from random import random
 from flask import Flask, render_template, session, request
 from flask_sock import Sock
 from binascii import a2b_base64
 import random
 import urllib
+from pythonhelpers import imagehelping
 from os.path import exists
 app = Flask(__name__, static_folder='./static', template_folder='./templates')
 app.config.update(TEMPLATES_AUTO_RELOAD=True)
@@ -29,12 +31,15 @@ def scan_websocket(sock):
         image_data = sock.receive()
         # save image as a random filename for 
         filename = 0
-        while exists("tempimages/"+str(filename)+".jpeg"):
+        while exists("temp_web_images/"+str(filename)+".jpeg"):
             filename = random.randint(0, 1000)
-        with open("tempimages/"+str(filename)+".jpeg", "wb") as fh:
+        with open("temp_web_images/"+str(filename)+".jpeg", "wb") as fh:
             response = urllib.request.urlopen(image_data)
             fh.write(response.file.read())
         fh.close()
+        filename = "temp_web_images/"+str(filename)+".jpeg"
+        imagehelping.getImageData(filename)
+
         sock.send("200")
 
 
