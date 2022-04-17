@@ -11,7 +11,7 @@
     <video id="video" width="320" height="240" autoplay></video>
     <button id="click-photo">Click Photo</button>
     <canvas id="canvas" width="320" height="240"></canvas>
-    <script src="static/js/scan.js"> </script>
+    
     <!-- quick start tester for flask-sock -->
     <h1>Flask-Sock Demo</h1>
     <div id="log"></div>
@@ -21,22 +21,7 @@
       <input type="text" id="text" autofocus>
         <button type="submit">submit</button>
       </form>
-    <script>
-        const log = (text, color) => {
-          document.getElementById('log').innerHTML += `<span style="color: ${color}">${text}</span><br>`;
-        };
-  
-        const socket = new WebSocket('ws://' + location.host + '/scan_websocket');
-        socket.addEventListener('message', ev => {
-          log('<<< ' + ev.data, 'blue');
-        });
-        document.getElementById('form').onsubmit = ev => {
-          ev.preventDefault();
-          const textField = document.getElementById('text');
-          log('>>> ' + textField.value, 'red');
-          socket.send(textField.value);
-          textField.value = '';
-        };
-      </script>
+      <script src="static/js/scan.js"> </script>
+
 </body>
 </html>
