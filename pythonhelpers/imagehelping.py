@@ -1,3 +1,5 @@
+from dis import dis
+import math
 import cv2
 import os
 import mediapipe as mp
@@ -14,22 +16,45 @@ def getImageData(filename):
     
     # save to temp dir?? maybe we dont need to save
     img = cv2.imread(filename)
+    students = []
     for i, (face_dict) in enumerate(faces):
         average_distance = (face_dict['xmin'] + face_dict['xmax'] + face_dict['ymin'] + face_dict['ymax'])/8
         average_x = (face_dict['xmin'] + face_dict['xmax'])/2
         average_y = (face_dict['ymin'] + face_dict['ymax'])/2
-        print(face_dict)
+        # print(face_dict)
         tempimg = img.copy()
         tempimg = tempimg[int(average_x-average_distance):int(average_x+average_distance) , int(average_y-average_distance):int(average_y+average_distance)]
         newfilename = "temp_head_images/"+str(newname)+ "-" + str(i)+".jpeg"
         try:
             cv2.imwrite(newfilename, tempimg)
+            students.append({
+                "Filepath":newfilename,
+                "CLocation":[average_x, average_y],
+                "Radius": average_distance,
+                "HandRaised": False
+                })
         except:
             pass
-   
+
+        
 #    idetify locations of palms
     palm = detectPalmLocations(filename)
-    i = 0
+    # print(palm)
+    # identify students who have raised their hands
+    if (palm and (len(palm) != 0 or len(students) != 0)):
+        for p in palm:
+            min = [None , None]
+            for i, stud in enumerate(students):
+                dist = math.dist(p, stud["CLocation"])
+                if not min[0] or dist < min[0]:
+                    min[0] = dist
+                    min[1] = i      
+            if (students[min[1]]["HandRaised"] == False):
+                students[min[1]]["HandRaised"] = True
+    print(students)
+    
+            
+    
     # visualize palm
     # newfilename = "temp_palm_images/"+str(newname)+ "-" + str(i)+".jpeg"
     # cv2.imwrite(newfilename, palm)
@@ -38,6 +63,8 @@ def getImageData(filename):
         # os.remove(newfilename)
     # get data back, log into db
     # os.remove(filename)
+
+    # send out api request to identify each face
     
     return
 
@@ -51,8 +78,8 @@ def detectFaceLocations(filename):
         # Convert the BGR image to RGB and process it with MediaPipe Face Detection.
         results = face_detection.process(cv2.cvtColor(image, cv2.COLOR_BGR2RGB))
         annotated_image = image.copy()
-        print(results.detections)
-        print(type(results.detections))
+        # print(results.detections)
+        # print(type(results.detections))
         width = image.shape[0]
         height = image.shape[1]
         locations = []
