@@ -1,8 +1,6 @@
-from email.mime import image
 from random import random
 from flask import Flask, render_template, session, request
 from flask_sock import Sock
-from binascii import a2b_base64
 import random
 import urllib
 from pythonhelpers import imagehelping
