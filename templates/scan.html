@@ -11,17 +11,10 @@
     <video id="video" width="320" height="240" autoplay></video>
     <button id="click-photo">Click Photo</button>
     <canvas id="canvas" width="320" height="240"></canvas>
-    
-    <!-- quick start tester for flask-sock -->
-    <h1>Flask-Sock Demo</h1>
-    <div id="log"></div>
-    <br>
-    <form id="form">
-      <label for="text">Input: </label>
-      <input type="text" id="text" autofocus>
-        <button type="submit">submit</button>
-      </form>
-      <script src="static/js/scan.js"> </script>
+
+    <!-- initalize the connection before scanning -->
+    <script src="static/js/websockets.js"> </script>
+    <script src="static/js/scan.js"> </script>
 
 </body>
 </html>

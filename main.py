@@ -1,14 +1,19 @@
 from random import random
-from flask import Flask, render_template, session, request
+from flask import Flask, flash,render_template, session, request, redirect
 from flask_sock import Sock
 import random
 import urllib
+import json
+import requests
 from pythonhelpers import imagehelping
 from os.path import exists
 app = Flask(__name__, static_folder='./static', template_folder='./templates')
 app.config.update(TEMPLATES_AUTO_RELOAD=True)
 sock = Sock(app)
+app.secret_key = 'the random string'
 
+database = r"C:\sqlite\db\pythonsqlite.db"
+import myapi
 
 @app.route('/', methods=['GET', 'POST'])
 def home():
@@ -16,6 +21,26 @@ def home():
         'index.html'
     )
 
+@app.route('/admin', methods=['GET', 'POST'])
+def admin():
+    if request.method== "POST":
+        if 'file' not in request.files:
+            flash('No file part')
+            return redirect(request.url)
+
+        file = request.files['file']
+        print(file.filename)
+        if file.filename == '':
+            flash('No selected file')
+            return redirect(request.url)
+        name = request.form.get['Name']
+        # images/" + name
+        file.save("images/" + name)
+        print(name)
+        myapi.RegisterFace(name, file.read())
+        # ADD students profiles
+    db = json.loads(myapi.viewDB())
+    return render_template('admin.html', db=db)
 
 @app.route('/scan', methods=['GET', 'POST'])
 def scanner():

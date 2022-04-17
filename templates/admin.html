@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script></head>
+<body>
+<p>
+    List of Users: {{db.uids}}
+</p>
+    
+    <form method="post">
+        <input type="hidden" name="Request" value="Add_Student">
+        <label for="Name">Student Name: </label>
+        <input name="Name" type="text">
+        <input type="file" id="RefImage" name="Image" accept="image/png, image/jpeg, image/jpg"> 
+        <button type="Submit">Submit</button>
+    </form>
+
+
+</body>
+</html>
