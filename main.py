@@ -1,7 +1,9 @@
 from flask import Flask, render_template, session, request
+from flask_sock import Sock
+ 
 app = Flask(__name__, static_folder='./static', template_folder='./templates')
-
 app.config.update(TEMPLATES_AUTO_RELOAD=True)
+sock = Sock(app)
 
 @app.route('/', methods=['GET', 'POST'])
 def home():
@@ -13,6 +15,14 @@ def scanner():
     return render_template(
     'scan.html'
   )
+
+@sock.route('/scan_websocket')
+def scan_websocket(sock):
+  while True:
+    # test websocket server
+    data = sock.receive()
+    sock.send(data)
+
 @app.route('/personality_quiz', methods=['GET', 'POST'])
 def quiz():
     if (request.method == 'POST'):
