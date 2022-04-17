@@ -1,24 +1,23 @@
 import cv2
 import os
 import mediapipe as mp
+import numpy as np
 # Idea: The camera is going to constantly send us image frames
 # then we are going to continuously get palm and head locations data
 # when button pressed send 5 facepics to api that are closest to expected pixels size
 def getImageData(filename):
     # identify face rectangles
     # ONLY ONE FOR NOW
-    faces = detectFaceLocations(filename,4)
+    faces = detectFaceLocations(filename)
     newname = filename.split('/')[-1]
     newname = newname.split('.')[0]
     
     # save to temp dir?? maybe we dont need to save
     img = cv2.imread(filename)
-    for i, (x, y, w, h) in enumerate(faces):
+    for i, (face_dict) in enumerate(faces):
+        print(face_dict)
         tempimg = img.copy()
-        bufferw= w*1.5
-        buffery= h*1.5
-
-        tempimg = tempimg[int(x-bufferw):int(x+w+bufferw) , int(y-buffery):int(y+h+buffery)]
+        tempimg = tempimg[int(face_dict['xmin']):int(face_dict['xmax']) , int(face_dict['ymin']):int(face_dict["ymax"])]
         newfilename = "temp_head_images/"+str(newname)+ "-" + str(i)+".jpeg"
         try:
             cv2.imwrite(newfilename, tempimg)
@@ -40,31 +39,37 @@ def getImageData(filename):
     return
 
 # Returns faces = [(x,y,w,h),....]
-def detectFaceLocations(filename, num_of_faces):
-    # https://github.com/adarsh1021/facedetection
-    # http://betafaceapi.com/
-    # Load the cascade
-    face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')
+def detectFaceLocations(filename):
+    mp_face_detection = mp.solutions.face_detection
+    mp_drawing = mp.solutions.drawing_utils
+    with mp_face_detection.FaceDetection(
+        model_selection=1, min_detection_confidence=0.5) as face_detection:
+        image = cv2.imread(filename)
+        # Convert the BGR image to RGB and process it with MediaPipe Face Detection.
+        results = face_detection.process(cv2.cvtColor(image, cv2.COLOR_BGR2RGB))
+        annotated_image = image.copy()
+        print(results.detections)
+        print(type(results.detections))
+        width = image.shape[0]
+        height = image.shape[1]
+        locations = []
+        if results.detections:
+            for detection in results.detections:
+                bbox = detection.location_data.relative_bounding_box
+                locations.append({
+                    "xmin" : int(bbox.xmin * width*1.70),
+                    "ymin" : int(bbox.ymin * height*.1),
+                    "xmax" : int(bbox.width * width + bbox.xmin * width),
+                    "ymax" : int(bbox.height * height*1.5 + bbox.ymin * height)
+        })
+        return locations
 
-    # Read the input image
-    img = cv2.imread(filename)
-
-    # Convert into grayscale
-    gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-
-    # Detect faces
-    faces = face_cascade.detectMultiScale(gray, 1.1, num_of_faces)
-
-    # # Draw rectangle around the faces
-    # for (x, y, w, h) in faces:
-    #     cv2.rectangle(img, (x, y), (x + w, y + h), (255, 0, 0), 2)
-
-    # # Display the output
-    # cv2.imshow('img', img)
-    # cv2.waitKey()
-    return faces
-
-
+        #     print('Nose tip:')
+        #     print(mp_face_detection.get_key_point(
+        # detection, mp_face_detection.FaceKeyPoint.NOSE_TIP))
+        # mp_drawing.draw_detection(annotated_image, detection)
+        # cv2.imwrite('temp_head_images/annotated_image.png', annotated_image)    
+        # cv2.imwrite('temp_head_images/annotated_image.png', image)    
 def detectPalmLocations(filename):
     mpPalms = mp.solutions.hands
     palms = mpPalms.Hands(static_image_mode=False,
