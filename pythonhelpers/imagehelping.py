@@ -1,5 +1,8 @@
 import cv2
 import os
+# Idea: The camera is going to constantly send us image frames
+# then we are going to continuously get hand and head locations data
+# when button pressed send 5 facepics to api that are closest to expected pixels size
 def getImageData(filename):
     # identify face rectangles
     # ONLY ONE FOR NOW
